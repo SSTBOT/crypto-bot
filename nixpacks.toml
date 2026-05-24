@@ -1,12 +1,8 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip", "python311Packages.venv"]
+nixPkgs = ["python311"]
 
 [phases.install]
-cmds = [
-  "python -m venv venv",
-  "source venv/bin/activate",
-  "pip install --no-cache-dir ccxt python-telegram-bot python-dotenv"
-]
+cmds = ["pip install --no-cache-dir -r requirements.txt"]
 
 [start]
-cmd = "source venv/bin/activate && python bot_railway.py"
+cmd = "python bot_railway.py"
