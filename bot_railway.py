@@ -16,6 +16,10 @@ CHAT_ID = os.getenv("CHAT_ID")
 BYBIT_API_KEY = os.getenv("BYBIT_API_KEY")
 BYBIT_API_SECRET = os.getenv("BYBIT_API_SECRET")
 
+# Публичный прокси (можно заменить на свой)
+# Бесплатные прокси: https://free-proxy-list.net/
+PROXY_URL = os.getenv("PROXY_URL", "http://brd.superproxy.io:22225")
+
 SETTINGS_FILE = "settings.json"
 POSITIONS_FILE = "positions.json"
 HISTORY_FILE = "history.json"
@@ -80,12 +84,22 @@ def add_to_history(symbol, action, price, amount, pnl_percent=None, pnl_usdt=Non
 
 settings = load_settings()
 
-exchange = ccxt.bybit({
+# Настройка прокси для Bybit
+exchange_config = {
     'apiKey': BYBIT_API_KEY,
     'secret': BYBIT_API_SECRET,
     'enableRateLimit': True,
     'options': {'defaultType': 'spot'}
-})
+}
+
+if PROXY_URL and PROXY_URL != "":
+    exchange_config['proxies'] = {
+        'http': PROXY_URL,
+        'https': PROXY_URL
+    }
+    print(f"✅ Using proxy: {PROXY_URL}")
+
+exchange = ccxt.bybit(exchange_config)
 
 SCANNER_RUNNING = True
 bot = None
@@ -303,62 +317,62 @@ def start_scanner():
 
 def main_menu():
     keyboard = [
-        [InlineKeyboardButton("📊 Status", callback_data="status")],
-        [InlineKeyboardButton("⚙️ Settings", callback_data="settings")],
-        [InlineKeyboardButton("📈 My Positions", callback_data="positions")],
-        [InlineKeyboardButton("💰 Manual Buy", callback_data="buy_menu")],
-        [InlineKeyboardButton("📜 History", callback_data="history")],
-        [InlineKeyboardButton("🔴 Sell All", callback_data="sellall")],
-        [InlineKeyboardButton("🏆 Top 24h", callback_data="top24h")],
-        [InlineKeyboardButton("🆕 New Coins", callback_data="newcoins")],
-        [InlineKeyboardButton("▶️ Start Scanner", callback_data="start"),
-         InlineKeyboardButton("⏹️ Stop Scanner", callback_data="stop")],
+        [InlineKeyboardButton("Status", callback_data="status")],
+        [InlineKeyboardButton("Settings", callback_data="settings")],
+        [InlineKeyboardButton("My Positions", callback_data="positions")],
+        [InlineKeyboardButton("Manual Buy", callback_data="buy_menu")],
+        [InlineKeyboardButton("History", callback_data="history")],
+        [InlineKeyboardButton("Sell All", callback_data="sellall")],
+        [InlineKeyboardButton("Top 24h", callback_data="top24h")],
+        [InlineKeyboardButton("New Coins", callback_data="newcoins")],
+        [InlineKeyboardButton("Start Scanner", callback_data="start"),
+         InlineKeyboardButton("Stop Scanner", callback_data="stop")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def settings_menu():
     s = load_settings()
     keyboard = [
-        [InlineKeyboardButton(f"💰 Amount: ${s['max_amount']}", callback_data="set_amount")],
-        [InlineKeyboardButton(f"🛑 Stop Loss: {s['stop_loss']}%", callback_data="set_sl")],
-        [InlineKeyboardButton(f"✅ Take Profit: {s['take_profit']}%", callback_data="set_tp")],
-        [InlineKeyboardButton(f"📊 Threshold: {s['min_price_change']}%", callback_data="set_threshold")],
-        [InlineKeyboardButton(f"⏱️ Interval: {s['scan_interval']}s", callback_data="set_interval")],
-        [InlineKeyboardButton("🔙 Back", callback_data="back")]
+        [InlineKeyboardButton(f"Amount: ${s['max_amount']}", callback_data="set_amount")],
+        [InlineKeyboardButton(f"Stop Loss: {s['stop_loss']}%", callback_data="set_sl")],
+        [InlineKeyboardButton(f"Take Profit: {s['take_profit']}%", callback_data="set_tp")],
+        [InlineKeyboardButton(f"Threshold: {s['min_price_change']}%", callback_data="set_threshold")],
+        [InlineKeyboardButton(f"Interval: {s['scan_interval']}s", callback_data="set_interval")],
+        [InlineKeyboardButton("Back", callback_data="back")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def amount_menu():
     keyboard = [
-        [InlineKeyboardButton("💵 $5", callback_data="amount_5"),
-         InlineKeyboardButton("💵 $10", callback_data="amount_10")],
-        [InlineKeyboardButton("💵 $20", callback_data="amount_20"),
-         InlineKeyboardButton("💵 $50", callback_data="amount_50")],
-        [InlineKeyboardButton("🔙 Back", callback_data="settings")]
+        [InlineKeyboardButton("$5", callback_data="amount_5"),
+         InlineKeyboardButton("$10", callback_data="amount_10")],
+        [InlineKeyboardButton("$20", callback_data="amount_20"),
+         InlineKeyboardButton("$50", callback_data="amount_50")],
+        [InlineKeyboardButton("Back", callback_data="settings")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def threshold_menu():
     keyboard = [
-        [InlineKeyboardButton("📊 1% (many)", callback_data="thresh_1")],
-        [InlineKeyboardButton("📊 2% (medium)", callback_data="thresh_2")],
-        [InlineKeyboardButton("📊 5% (few)", callback_data="thresh_5")],
-        [InlineKeyboardButton("📊 8% (rare)", callback_data="thresh_8")],
-        [InlineKeyboardButton("🔙 Back", callback_data="settings")]
+        [InlineKeyboardButton("1% (many)", callback_data="thresh_1")],
+        [InlineKeyboardButton("2% (medium)", callback_data="thresh_2")],
+        [InlineKeyboardButton("5% (few)", callback_data="thresh_5")],
+        [InlineKeyboardButton("8% (rare)", callback_data="thresh_8")],
+        [InlineKeyboardButton("Back", callback_data="settings")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def coin_menu():
     keyboard = [
-        [InlineKeyboardButton("🪙 DOGE", callback_data="buy_DOGE"),
-         InlineKeyboardButton("🪙 SHIB", callback_data="buy_SHIB")],
-        [InlineKeyboardButton("🪙 PEPE", callback_data="buy_PEPE"),
-         InlineKeyboardButton("🪙 AVL", callback_data="buy_AVL")],
-        [InlineKeyboardButton("🪙 BTC", callback_data="buy_BTC"),
-         InlineKeyboardButton("🪙 ETH", callback_data="buy_ETH")],
-        [InlineKeyboardButton("🪙 SOL", callback_data="buy_SOL"),
-         InlineKeyboardButton("🪙 XRP", callback_data="buy_XRP")],
-        [InlineKeyboardButton("🔙 Back", callback_data="back")]
+        [InlineKeyboardButton("DOGE", callback_data="buy_DOGE"),
+         InlineKeyboardButton("SHIB", callback_data="buy_SHIB")],
+        [InlineKeyboardButton("PEPE", callback_data="buy_PEPE"),
+         InlineKeyboardButton("AVL", callback_data="buy_AVL")],
+        [InlineKeyboardButton("BTC", callback_data="buy_BTC"),
+         InlineKeyboardButton("ETH", callback_data="buy_ETH")],
+        [InlineKeyboardButton("SOL", callback_data="buy_SOL"),
+         InlineKeyboardButton("XRP", callback_data="buy_XRP")],
+        [InlineKeyboardButton("Back", callback_data="back")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -524,45 +538,23 @@ def callback_handler(update, context):
         success, msg = buy_token(symbol, amount, "manual", "Manual buy")
         query.edit_message_text(msg, reply_markup=main_menu())
     
-    # ========== ИСПРАВЛЕННАЯ КНОПКА SELL ALL ==========
     elif query.data == "sellall":
         positions = load_positions()
         if not positions:
-            query.edit_message_text("❌ No positions to sell", reply_markup=main_menu())
+            query.edit_message_text("No positions to sell", reply_markup=main_menu())
             return
         
-        # Отправляем сообщение о начале продажи
-        query.edit_message_text("🔄 Selling all positions...", reply_markup=main_menu())
+        query.edit_message_text("Selling all positions...", reply_markup=main_menu())
         
         sold = []
-        errors = []
-        
         for symbol in list(positions.keys()):
-            try:
-                success, msg = sell_token(symbol)
-                if success:
-                    sold.append(symbol)
-                    print(f"Sold: {symbol}")
-                else:
-                    errors.append(f"{symbol}: {msg}")
-            except Exception as e:
-                errors.append(f"{symbol}: {str(e)}")
-                print(f"Error selling {symbol}: {e}")
+            success, msg = sell_token(symbol)
+            if success:
+                sold.append(symbol)
         
-        # Формируем результат
         if sold:
-            result_text = "✅ Sold:\n" + "\n".join(sold)
-        else:
-            result_text = "❌ Nothing was sold"
-        
-        if errors:
-            result_text += "\n\n❌ Errors:\n" + "\n".join(errors[:3])
-        
-        # Отправляем результат
-        send_telegram(result_text)
-        
-        # Обновляем меню
-        query.edit_message_text("✅ Done! Back to menu", reply_markup=main_menu())
+            send_telegram(f"Sold: {', '.join(sold)}")
+        query.edit_message_text("Done!", reply_markup=main_menu())
     
     elif query.data == "start":
         SCANNER_RUNNING = True
@@ -597,26 +589,6 @@ def handle_message(update, context):
             update.message.reply_text("❌ Enter a number")
         context.user_data.pop('waiting_for')
         update.message.reply_text("Press /start to return to menu")
-    
-    # Команда /sellall в чате
-    elif update.message.text and update.message.text.startswith('/sellall'):
-        positions = load_positions()
-        if not positions:
-            update.message.reply_text("❌ No positions to sell")
-            return
-        
-        update.message.reply_text("🔄 Selling all positions...")
-        
-        sold = []
-        for symbol in list(positions.keys()):
-            success, msg = sell_token(symbol)
-            if success:
-                sold.append(symbol)
-        
-        if sold:
-            update.message.reply_text(f"✅ Sold: {', '.join(sold)}")
-        else:
-            update.message.reply_text("❌ Nothing was sold")
 
 def main():
     global bot
@@ -625,13 +597,24 @@ def main():
     print("   CRYPTO BOT v4.0 (Railway)")
     print("="*50 + "\n")
     
+    # Test connection with proxy
     try:
         balance = exchange.fetch_balance()
         usdt = balance['USDT']['free']
         print(f"💰 Balance: ${usdt:.2f} USDT")
+        print("✅ Connection successful via proxy!")
     except Exception as e:
         print(f"❌ Connection error: {e}")
-        return
+        print("Trying without proxy...")
+        # Fallback - try without proxy
+        exchange.proxies = None
+        try:
+            balance = exchange.fetch_balance()
+            usdt = balance['USDT']['free']
+            print(f"💰 Balance: ${usdt:.2f} USDT")
+        except Exception as e2:
+            print(f"❌ Both with and without proxy failed: {e2}")
+            return
     
     start_scanner()
     
