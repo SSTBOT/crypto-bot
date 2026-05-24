@@ -1,8 +1,8 @@
 {
   "max_amount": 5.0,
-  "stop_loss": 2.0,
+  "stop_loss": 3.0,
   "take_profit": 10.0,
-  "scan_interval": 15,
+  "scan_interval": 10,
   "min_price_change": 2.0,
   "scanner_5m": true,
   "scanner_24h": true,
