@@ -1,0 +1,24 @@
+{
+  "FIDA/USDT": {
+    "symbol": "FIDA/USDT",
+    "buy_price": 0.03933,
+    "buy_time": "2026-05-24T22:35:07.210211",
+    "quantity": 127.12,
+    "amount_usdt": 5.0,
+    "stop_loss": 0.037363499999999994,
+    "take_profit": 0.047195999999999995,
+    "source": "auto_24h",
+    "reason": "\u041b\u0438\u0434\u0435\u0440 \u0434\u043d\u044f +18.7%"
+  },
+  "PSG/USDT": {
+    "symbol": "PSG/USDT",
+    "buy_price": 1.083,
+    "buy_time": "2026-05-24T22:45:21.541472",
+    "quantity": 4.61,
+    "amount_usdt": 5.0,
+    "stop_loss": 0.9747,
+    "take_profit": 1.2995999999999999,
+    "source": "auto_5m",
+    "reason": "\u0420\u043e\u0441\u0442 2.4% \u0437\u0430 5\u043c\u0438\u043d"
+  }
+}
